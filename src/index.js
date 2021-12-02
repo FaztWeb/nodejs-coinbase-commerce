@@ -4,7 +4,11 @@ const path = require("path");
 const morgan = require("morgan");
 
 const { Client, resources, Webhook } = require("coinbase-commerce-node");
-const { COINBASE_API_KEY, COINBASE_WEBHOOK_SECRET } = require("./config");
+const {
+  COINBASE_API_KEY,
+  COINBASE_WEBHOOK_SECRET,
+  DOMAIN,
+} = require("./config");
 
 const { Charge } = resources;
 Client.init(COINBASE_API_KEY);
@@ -36,8 +40,8 @@ app.get("/create-charge", async (req, res) => {
       customer_id: "id_1005",
       customer_name: "Satoshi Nakamoto",
     },
-    redirect_url: "https://coinbase-fazt-test.herokuapp.com/success-payment",
-    cancel_url: "https://coinbase-fazt-test.herokuapp.com/cancel-payment",
+    redirect_url: `${DOMAIN}/success-payment`,
+    cancel_url: `${DOMAIN}/cancel-payment`,
   };
 
   const charge = await Charge.create(chargeData);
@@ -51,8 +55,6 @@ app.post("/payment-handler", (req, res) => {
   const rawBody = req.rawBody;
   const signature = req.headers["x-cc-webhook-signature"];
   const webhookSecret = COINBASE_WEBHOOK_SECRET;
-
-  console.log({ rawBody, signature, webhookSecret });
 
   let event;
 
